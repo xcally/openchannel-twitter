@@ -1,0 +1,31 @@
+{
+  "name": "openchannel-twitter",
+  "version": "1.0.0",
+  "description": "xCALLY Motion Openchannel-Twitter integration",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xcally/openchannel-twitter.git"
+  },
+  "keywords": [
+    "xcally",
+    "motion",
+    "openchannel",
+    "twitter"
+  ],
+  "author": "xcally",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/xcally/openchannel-twitter/issues"
+  },
+  "homepage": "https://github.com/xcally/openchannel-twitter#readme",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "express": "^4.14.0",
+    "request-promise": "^4.1.0",
+    "twit": "^2.2.4"
+  }
+}
