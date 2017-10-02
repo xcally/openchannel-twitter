@@ -97,10 +97,8 @@ stream.on('direct_message', function(msg) {
 
 app.post('/sendMessage', function(req, res) {
   try {
-    if (!req.body.Contact) {
-      throw new Error('Unable to retrieve Contact!');
-    }
-    var screen_name = req.body.Contact.twitter;
+    
+    var screen_name = req.body.Contact ? req.body.Contact.twitter : req.body.to;
     var text = req.body.body;
 
     client.post('direct_messages/new', {
