@@ -77,7 +77,7 @@ stream.on('direct_message', function(msg) {
     // Check sender
     if (msg.direct_message.sender.screen_name != config.screen_name) {
       var data = {
-        from: util.format('https://twitter.com/%s', msg.direct_message.sender.screen_name),
+        from: msg.direct_message.sender.screen_name,
         body: msg.direct_message.text,
         name: msg.direct_message.sender.name,
         firstName: msg.direct_message.sender.name,
