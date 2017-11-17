@@ -81,9 +81,13 @@ stream.on('direct_message', function(msg) {
         body: msg.direct_message.text,
         name: msg.direct_message.sender.name,
         firstName: msg.direct_message.sender.name,
-        phone:'none',
+        phone: 'none',
         mapKey: 'twitter'
       };
+
+      if (msg.direct_message.entities.media && msg.direct_message.entities.media.length) {
+        data.body += ' (Attachments are not yet supported!)';
+      }
 
       return request({
         method: 'POST',
@@ -97,24 +101,40 @@ stream.on('direct_message', function(msg) {
 
 app.post('/sendMessage', function(req, res) {
   try {
-    
+
     var screen_name = req.body.Contact ? req.body.Contact.twitter : req.body.to;
     var text = req.body.body;
 
-    client.post('direct_messages/new', {
-      screen_name: screen_name,
-      text: text
-    }, function(error, data, response) {
-      if (!error) {
-        logger.info(data);
-        logger.info(response);
-        logger.info('Reply sent');
-        res.status(200).send(data);
-      } else {
-        logger.error('Reply failed:', error);
-        res.status(500).send(error);
-      }
-    });
+    if (req.body.AttachmentId) {
+      var data = {
+        from: screen_name,
+        body: 'AUTO-RESPONSE : Attachments are not yet supported!',
+        mapKey: 'twitter'
+      };
+
+      return request({
+        method: 'POST',
+        uri: config.url,
+        body: data,
+        json: true
+      });
+
+    } else {
+      client.post('direct_messages/new', {
+        screen_name: screen_name,
+        text: text
+      }, function(error, data, response) {
+        if (!error) {
+          logger.info(data);
+          logger.info(response);
+          logger.info('Reply sent');
+          res.status(200).send(data);
+        } else {
+          logger.error('Reply failed:', error);
+          res.status(500).send(error);
+        }
+      });
+    }
   } catch (e) {
     logger.error('Reply error:', e);
   }
