@@ -68,8 +68,53 @@ stream.on('warning', function(warning) {
 });
 
 stream.on('message', function(msg) {
-  //logger.info(msg);
+  // logger.info('message is', msg);
 });
+
+stream.on('error', function(error) {
+  logger.info('Twitter error:', error);
+});
+
+function sendData(data){
+    return request({
+      method: 'POST',
+      uri: config.url,
+      body: data,
+      json: true
+    });
+}
+
+function sendTweetData(tweet){
+
+    var data = {
+      from: tweet.user.screen_name,
+      body: tweet.text,
+      name: tweet.user.name,
+      firstName: tweet.user.name,
+      threadId: tweet.in_reply_to_status_id_str || tweet.id_str,
+      phone: 'none',
+      mapKey: 'twitter'
+    };
+
+    if (tweet.entities.media && tweet.entities.media.length) {
+      data.body += ' (Attachments are not yet supported!)';
+    }
+
+    return sendData(data);
+}
+
+if(config.enableTweets){
+
+    stream.on('tweet', function(tweet) {
+        logger.info('tweet', tweet.id);
+      if(tweet.user.screen_name === config.screen_name && tweet.in_reply_to_screen_name !== null){
+          //reply from page, do not send to motion!
+          return;
+      }
+      return sendTweetData(tweet);
+    });
+
+}
 
 stream.on('direct_message', function(msg) {
 
@@ -89,15 +134,23 @@ stream.on('direct_message', function(msg) {
         data.body += ' (Attachments are not yet supported!)';
       }
 
-      return request({
-        method: 'POST',
-        uri: config.url,
-        body: data,
-        json: true
-      });
+      return sendData(data);
+
     }
   }
 });
+
+function handleResponse(error, data, response, res) {
+  if (!error) {
+    logger.info(data);
+    logger.info(response);
+    logger.info('Reply sent');
+    res.status(200).send(data);
+  } else {
+    logger.error('Reply failed:', error);
+    res.status(500).send(error);
+  }
+}
 
 app.post('/sendMessage', function(req, res) {
   try {
@@ -112,30 +165,47 @@ app.post('/sendMessage', function(req, res) {
         mapKey: 'twitter'
       };
 
-      return request({
-        method: 'POST',
-        uri: config.url,
-        body: data,
-        json: true
-      });
+      return sendData(data);
 
     } else {
-      client.post('direct_messages/new', {
-        screen_name: screen_name,
-        text: text
-      }, function(error, data, response) {
-        if (!error) {
-          logger.info(data);
-          logger.info(response);
-          logger.info('Reply sent');
-          res.status(200).send(data);
-        } else {
-          logger.error('Reply failed:', error);
-          res.status(500).send(error);
+        if(req.body.Interaction && req.body.Interaction.threadId){
+            logger.info('threadId', req.body.Interaction.threadId);
+            if(text.indexOf('@' + screen_name) !== 0){//I have to mention the user that created the original tweet referred by the threadId
+                text = util.format('@%s %s', screen_name, text);
+            }
+            client.post('statuses/update', {
+              status: text,
+              in_reply_to_status_id: req.body.Interaction.threadId
+          }, function(error, data, response){
+              return handleResponse(error, data, response, res);
+          });
         }
-      });
+        else{
+            client.get('users/show', {
+                screen_name: screen_name
+            }, function(error, data, response){
+                if(error){
+                    return handleResponse(error, null, null, res);
+                }
+                client.post('direct_messages/events/new', {
+                  event: {
+                    type: 'message_create',
+                    message_create: {
+                      target: {
+                        recipient_id: data.id
+                      },
+                      message_data: {
+                        text: text,
+                      }
+                    }
+                  }
+                }, function(error, data, response){
+                  return handleResponse(error, data, response, res);
+              });
+          });
+        }
     }
   } catch (e) {
-    logger.error('Reply error:', e);
+    logger.error('Reply error:', JSON.stringify(e));
   }
 });
