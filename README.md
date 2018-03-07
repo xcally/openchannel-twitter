@@ -33,7 +33,8 @@ Please see `config.json` in the root folder if you want to change the default ap
   "access_token_secret": "YOUR_TWITTER_ACCESS_TOKEN_SECRET",
   "screen_name": "YOUR_TWITTER_SCREEN_NAME",
   "url": "http://YOUR_MOTION_DOMAIN/api/openchannel/accounts/OPENCHANNEL_INTEGRATION_ID/receive",
-  "port": 3002
+  "port": 3002,
+  "enableTweets": false
 }
 ```
 ## Contribution & support
