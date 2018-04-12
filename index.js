@@ -35,7 +35,7 @@ morgan.token('datetime', function(req, res) {
   return moment().format('YYYY-MM-DD HH:mm:ss');
 });
 
-app.use(morgan('VERBOSE [:datetime] [REQUEST] [OPENCHANNEL-FACEBOOK] - :method :remote-address :remote-user :url :status :response-time ms - :res[content-length]'));
+app.use(morgan('VERBOSE [:datetime] [REQUEST] [OPENCHANNEL-TWITTER] - :method :remote-address :remote-user :url :status :response-time ms - :res[content-length]'));
 
 //Start server
 app.listen(port, function() {
