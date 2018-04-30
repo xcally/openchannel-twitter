@@ -107,7 +107,7 @@ if(config.enableTweets){
 
     stream.on('tweet', function(tweet) {
         logger.info('tweet', tweet.id);
-      if(tweet.user.screen_name === config.screen_name && tweet.in_reply_to_screen_name !== null){
+      if((tweet.user.screen_name === config.screen_name && tweet.in_reply_to_screen_name !== null) || (tweet.user.screen_name !== config.screen_name && tweet.in_reply_to_screen_name === null)){//NOTE: Check if the page is replying or if it's not a direct tweet to the page
           //reply from page, do not send to motion!
           return;
       }
