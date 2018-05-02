@@ -89,8 +89,8 @@ function sendTweetData(tweet){
     var data = {
       from: tweet.user.screen_name,
       body: tweet.text,
-      name: tweet.user.name,
-      firstName: tweet.user.name,
+      name: tweet.user.name + ' (@' + tweet.user.screen_name + ')',
+      firstName: tweet.user.name + ' (@' + tweet.user.screen_name + ')',
       threadId: tweet.in_reply_to_status_id_str || tweet.id_str,
       phone: 'none',
       mapKey: 'twitter'
@@ -124,8 +124,8 @@ stream.on('direct_message', function(msg) {
       var data = {
         from: msg.direct_message.sender.screen_name,
         body: msg.direct_message.text,
-        name: msg.direct_message.sender.name,
-        firstName: msg.direct_message.sender.name,
+        name: msg.direct_message.sender.name + ' (@' + msg.direct_message.sender.screen_name + ')',
+        firstName: msg.direct_message.sender.name + ' (@' + msg.direct_message.sender.screen_name + ')',
         phone: 'none',
         mapKey: 'twitter'
       };
@@ -170,7 +170,7 @@ app.post('/sendMessage', function(req, res) {
     } else {
         if(req.body.Interaction && req.body.Interaction.threadId){
             logger.info('threadId', req.body.Interaction.threadId);
-            if(text.indexOf('@' + screen_name) !== 0){//I have to mention the user that created the original tweet referred by the threadId
+            if(text.indexOf('@' + screen_name) < 0){//I have to mention the user that created the original tweet referred by the threadId
                 text = util.format('@%s %s', screen_name, text);
             }
             client.post('statuses/update', {
