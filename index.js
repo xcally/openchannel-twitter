@@ -80,7 +80,8 @@ function sendData(data){
       method: 'POST',
       uri: config.url,
       body: data,
-      json: true
+      json: true,
+      rejectUnauthorized: false
     });
 }
 
